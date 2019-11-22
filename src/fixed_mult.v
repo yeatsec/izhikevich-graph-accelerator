@@ -7,24 +7,23 @@
 // This module will take two signed fixed-point
 // numbers, multiply them, and return the result
 
-parameter numwidth = 16 // 1 sign + 8 int + 8 frac, 0-based
+//parameter numwidth = 16; 1 sign + 8 int + 8 frac, 0-based
 
-module fixed_mult(
-    input clk,
-    input [numwidth:0] a, b,
-    output [numwidth:0] ab,
-    output clip_int, clip_frac);
-    wire [2*numwidth:0] multresult;
-    always @(posedge clk) // latch the multiplication result, everything else func logic
-        multresult <= a[numwidth-1:0] * b[numwidth-1:0]; // exclude sign bit
-    assign ab[numwidth-1:0] = multresult[(3*numwidth/2)-1:numwidth/2]; // ab is middle numwidth
-    assign ab[numwidth] = a[numwidth] ^ b[numwidth] // insert the sign bit
-    if (multresult[2*numwidth:3*numwidth/2])
-        assign clip_int = 1'b1;
-    else
-        assign clip_int = 1'b0;
-    if (multresult[(numwidth/2)-1:0])
-        assign clip_frac = 1'b1;
-    else
-        assign clip_frac = 1'b0;
+module fixed_mult(a, b, ab, clip_int, clip_frac);
+    input [16:0] a, b;
+    output [16:0] ab;
+    output clip_int, clip_frac;
+
+    wire clk;
+    wire [16:0] a, b;
+    wire [16:0] ab;
+    wire[31:0] multresult;
+    wire clip_int, clip_frac;
+
+    assign multresult = a[15:0] * b[15:0]; // exclude sign bit
+    assign ab[15:0] = multresult[23:8]; // ab is middle numwidth
+    assign ab[16] = a[16] ^ b[16]; // insert the sign bit
+    assign clip_int = |multresult[31:24];
+    assign clip_frac = |multresult[7:0];
+
 endmodule
