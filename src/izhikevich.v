@@ -2,30 +2,35 @@
 module izhikevich (clk, a, b, c, d, v, u, i, v_prime, u_prime, fired);
 
 // Outputs
-output [15:0] v_prime, u_prime, fired;
+output [16:0] v_prime, u_prime;
+output fired;
 
 // Inputs
 input clk;
-input [15:0] a, b, c, d, v, u, i;
+input [16:0] a, b, c, d, v, u, i;
 
 // Wire declarations
 wire clk;
-wire [15:0] a, b, c, d, v, u, i;
+wire [16:0] a, b, c, d, v, u, i;
 
 // Register declarations
-reg [15:0] v_prime, u_prime, fired;
+reg [16:0] v_prime, u_prime, fired;
 
 // Internal signals
-wire [15:0] new_v;
-wire [15:0] new_u;
+wire [16:0] new_v, new_u, mult1, mult2, mult3, mult4, inter;
 
 // Combinational logic
-assign new_v = 16'b0000_0000_0000_1010*v*v + 16'b0000_0101_0000_0000*v + 16'b1000_1100_0000_0000 - u + i;
-assign new_u = a*(b*v - u);
+fixed_mult U1(17'b0_0000_0000_0000_1010,v,mult1);
+fixed_mult U2(mult1,v,mult2);
+fixed_mult U3(17'b0_0000_0101_0000_0000,v,mult3);
+assign new_v = mult2 + mult3 + 17'b0_1000_1100_0000_0000 - u + i;
+fixed_mult U4(b,v,mult4);
+assign inter = mult4 - u;
+fixed_mult U5(a,inter,new_u);
 
 // Sequential logic
 always @ (posedge clk) begin
-	if (new_v >= 16'b0001_1110_0000_0000) begin
+	if (new_v >= 17'b0_0001_1110_0000_0000) begin
 		v_prime <= c;
 		u_prime <= u + d;
 		fired <= 1'b1;
