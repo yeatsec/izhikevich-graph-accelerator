@@ -14,9 +14,9 @@
 
 module efferent_weight_matrix(clk, src_tag, dst_tag, write_en, weight_in, weight_out);
 
-    parameter numwidth = 16
-    parameter tagbits = 1
-    parameter numneurons = 2
+    parameter numwidth = 16;
+    parameter tagbits = 1;
+    parameter numneurons = 2;
 
     input clk, write_en;
     input [tagbits-1:0] src_tag, dst_tag;
@@ -29,15 +29,16 @@ module efferent_weight_matrix(clk, src_tag, dst_tag, write_en, weight_in, weight
     wire [numwidth:0] weight_in;
     wire [numwidth:0] weight_out;
     
-    // local storage: numneurons * numwidth + (room for the sign bits), numneurons entries
-    reg [numneurons*numwidth+numneurons-1:0] mem [0:numneurons-1];
+    // local storage
+    reg [numwidth:0] mem [0:numneurons-1][0:numneurons-1];
+
+    assign weight_out = mem[src_tag][dst_tag];
 
     always @(posedge clk) begin
         // support write
-        if (write_en) begin // tricky slices
-            mem[src_tag][(dst_tag+1)*numwidth+dst_tag:(dst_tag)*numwidth+dst_tag] <= weight_in; // slicer no slicing
+        if (write_en) begin
+            mem[src_tag][dst_tag] <= weight_in;
         end
 
     end
-    assign weight_out = mem[src_tag][(dst_tag+1)*numwidth+dst_tag:(dst_tag)*numwidth+dst_tag]; // yikez
 endmodule
