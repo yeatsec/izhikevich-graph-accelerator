@@ -33,6 +33,6 @@ module state_register(clk, write_en, asyn_reset, v_new, u_new, tag, v, u);
                 mem[tag][numwidth:0] <= u_new;
             end
     end
-        assign v = mem[tag][memcols:numwidth+1];
-        assign u = mem[tag][numwidth:0];
+    assign v = mem[tag][memcols:numwidth+1];
+    assign u = mem[tag][numwidth:0];
 endmodule
