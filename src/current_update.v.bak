@@ -40,13 +40,13 @@ module current_update(clk, asyn_reset, swap, i_next_write_en, i_read_tag, i_next
 
     always @(posedge clk, posedge asyn_reset)
     begin
-        if (asyn_reset) begin
+        if (asyn_reset) begin // preference for reset
 	    for (j=0; j<numneurons; j=j+1)
             	i_next[j][numwidth:0] <= 17'b0_0000_0000_0000_0000;
 	    for (j=0; j<numneurons; j=j+1)
             	i[j][numwidth:0] <= 17'b0_0000_0000_0000_0000;
 	end
-        else if (swap) begin
+        else if (swap) begin// spook
 	    for (j=0; j<numneurons; j=j+1)
             	i[j][numwidth:0] <= i_next[j][numwidth:0];
 	    for (j=0; j<numneurons; j=j+1) begin
@@ -54,7 +54,8 @@ module current_update(clk, asyn_reset, swap, i_next_write_en, i_read_tag, i_next
             	i_next[j][numwidth-1] <= 1'b0; // slip in a zero for right shift
 	    end
 	end
-        else begin // do concurrent stuff
+        else begin// posedge clock; do concurrent stuff
+            // support i_next_write
             if (i_next_write_en) // write i_next_write_value to i_next_write_tag
                 i_next[i_next_write_tag] <= i_next_write_value;
 	    end
