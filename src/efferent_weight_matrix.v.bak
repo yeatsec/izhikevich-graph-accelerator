@@ -32,8 +32,6 @@ module efferent_weight_matrix(clk, src_tag, dst_tag, write_en, weight_in, weight
     // local storage
     reg [numwidth:0] mem [0:numneurons-1][0:numneurons-1];
 
-    assign weight_out = mem[src_tag][dst_tag];
-
     always @(posedge clk) begin
         // support write
         if (write_en) begin
@@ -41,4 +39,5 @@ module efferent_weight_matrix(clk, src_tag, dst_tag, write_en, weight_in, weight
         end
 
     end
+    assign weight_out = mem[src_tag][dst_tag];
 endmodule
