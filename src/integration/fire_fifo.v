@@ -62,7 +62,7 @@ module fire_fifo(clk, enq, deq, asyn_reset, in_tag, out_tag, full, empty);
                         mem[next] <= in_tag;
                         next <= next + 1;
                         isempty <= 1'b0;
-                        if (next == 0) // overflow
+                        if (next == (tagbits-1)) // overflow
                             isfull <= 1'b1;
 		    end
 		end

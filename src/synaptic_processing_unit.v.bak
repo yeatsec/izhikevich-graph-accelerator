@@ -33,7 +33,7 @@ module synaptic_processing_unit(clk, asyn_reset, fifo_empty, req_deq, weight_in,
     wire [numwidth:0] weight_in, i_next_in, i_next_out;
     wire [tagbits-1:0] src_tag_in, src_tag_out, dst_tag_out;
 
-    reg [tagbits-1:0] src_tag_reg, dst_tag_reg, src_done;
+    reg [tagbits-1:0] src_tag_reg, dst_tag_reg;
 
     always @(posedge clk, posedge asyn_reset) begin
         if (asyn_reset) begin
