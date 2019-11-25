@@ -36,10 +36,11 @@ module synaptic_processing_unit(clk, asyn_reset, fifo_empty, req_deq, req_write_
     output [numwidth:0] i_next_out;
     output [tagbits-1:0] src_tag_out, dst_tag_out;
 
-    wire clk, asyn_reset, fifo_empty, req_deq;
+    wire clk, asyn_reset, fifo_empty;
     wire [numwidth:0] weight_in, i_next_in, i_next_out;
     wire [tagbits-1:0] src_tag_in, src_tag_out, dst_tag_out;
 
+    reg req_deq, req_write_i_next;
     reg [tagbits-1:0] src_tag_reg, dst_tag_reg, src_done;
     reg [numwidth:0] cur_i_next, cur_weight, result;
     reg [numstates-1:0] state;
