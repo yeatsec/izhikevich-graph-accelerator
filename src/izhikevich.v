@@ -1,8 +1,8 @@
 //Izhikevich module
-module izhikevich (clk, a, b, c, d, v, u, i, v_prime, u_prime, fired);
+module izhikevich (clk, a, b, c, d, v, u, i, v_prime, u_prime, fired, new_v);
 
 // Outputs
-output [16:0] v_prime, u_prime;
+output [16:0] v_prime, u_prime, new_v;
 output fired;
 
 // Inputs
@@ -23,7 +23,7 @@ wire [16:0] new_v, new_u, mult1, mult2, mult3, mult4, inter, add1, add2, add3;
 // Combinational logic
 fixed_mult U1(17'b0_0000_0000_0000_1010,v,mult1);
 fixed_mult U2(mult1,v,mult2);
-fixed_mult U3(17'b0_0000_0101_0000_0000,v,mult3);
+fixed_mult U3(17'b0_0000_0101_0000_0000,v,mult3); // PROBLEM- Limits our C
 
 fixed_adder2 U6(mult2, mult3, 1'b0, add1);
 fixed_adder2 U7(add1, 17'b0_1000_1100_0000_0000, 1'b0, add2);
@@ -38,7 +38,7 @@ fixed_mult U5(a,inter,new_u);
 
 // Sequential logic
 always @ (posedge clk) begin
-	if (new_v >= 17'b0_0001_1110_0000_0000) begin
+	if ((new_v[15:0] >= 16'b0001_1110_0000_0000) && (new_v[16] == 1'b0)) begin
 		v_prime <= c;
 		u_prime <= u + d;
 		fired <= 1'b1;
