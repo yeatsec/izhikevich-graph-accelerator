@@ -24,7 +24,7 @@ wire fire_inter; // inter goes from iz to regs
 
 assign v_in = v_out;
 assign u_in = u_out;
-izhikevich U1(clk, 17'b0_0000_0000_0000_0101, 17'b0_0000_0000_0011_0011, 17'b1_0100_0001_0000_0000, 17'b0_0000_0010_0000_0000, v_in, u_in, i_in, v_inter, u_inter, fire_inter);
+izhikevich U1(clk, 17'b0_0000_0000_0000_0101, 17'b0_0000_0000_0011_0011, 17'b1_0011_0000_0000_0000, 17'b0_0000_0010_0000_0000, v_in, u_in, i_in, v_inter, u_inter, fire_inter);
 
 always @(posedge clk, posedge asyn_reset) begin
 	if (asyn_reset) begin
