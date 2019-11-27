@@ -14,7 +14,8 @@ wire clk;
 wire [16:0] a, b, c, d, v, u, i;
 
 // Register declarations
-reg [16:0] v_prime, u_prime, fired;
+reg [16:0] v_prime, u_prime;
+reg fired;
 
 // Internal signals
 wire [16:0] new_v, new_u, mult1, mult2, mult3, mult4, inter, add1, add2, add3;

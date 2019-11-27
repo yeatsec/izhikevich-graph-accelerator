@@ -1,1 +1,0 @@
-// Synaptic Processing Unit Testbench

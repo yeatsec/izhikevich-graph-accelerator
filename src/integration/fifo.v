@@ -15,14 +15,16 @@ module fifo(clk, enq, deq, asyn_reset, in_tag, out_tag, full, empty);
     output [tagbits-1:0] out_tag;
     output full, empty;
 
-    wire clk, enq, deq, asyn_reset, full, empty;
+    wire clk, enq, deq, asyn_reset;
+    reg full, empty;
+    reg [tagbits-1:0] out_tag;
 
     reg [tagbits-1:0] mem [0:numneurons-1];
     reg [tagbits-1:0] ptr;
 
-    wire [tagbits-1:0] ptr_next;
+    reg [tagbits-1:0] ptr_next;
     reg isfull, isempty;
-    wire isfull_next, isempty_next;
+    reg isfull_next, isempty_next;
     reg [numneurons:0] j;
 
     // state update
