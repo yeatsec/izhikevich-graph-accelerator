@@ -19,11 +19,12 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 	wire [numwidth:0] weight_in, i_next_in;
 	
 	wire req_write_i_next, req_deq, busy;
+	reg [numwidth:0] i_next_reg, weight_reg;
 	reg [tagbits-1:0] src_tag_out, dst_tag_out;
 	reg [numwidth:0] i_next_out;
 
 	wire [numwidth:0] add1;
-	fixed_adder2 U1(weight_in, i_next_in, 1'b0, add1);
+	fixed_adder2 U1(weight_reg, i_next_reg, 1'b0, add1);
 
 	wire [4:0] next_state;
 	reg [4:0] state;
@@ -37,12 +38,15 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 	wire [numwidth:0] next_out;
 	wire [tagbits-1:0] dst_tag_next;
 
-	// wire assignment
-	// assign dst = dst_tag_out;
-	// assign src = src_tag_out;
+	// Wire Assignment
+	// State Change
 	assign next_out = i_next_out;
 	assign next_state = my_fsm(state, fifo_empty, dst_tag_next);
 	assign dst_tag_next = dst_tag_out + 1;
+	// Moore Outputs
+	assign busy = (state != wait_src);
+	assign req_deq = (state == fetch_src);
+	assign req_write_i_next = (state == write_inext);
 
 	function [4:0] my_fsm;
 		input [4:0] state;
@@ -77,49 +81,35 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 	always @(posedge clk, posedge asyn_reset) begin // FSM
 		if (asyn_reset) begin
 			state <= wait_src;
+			i_next_out <= 0;
+			dst_tag_out <= 0;
+			src_tag_out <= 0;
+			weight_reg <= 0;
+			i_next_reg <= 0;
 		end
 		else begin
 			state <= next_state;
 		end
 	end
 
-	always @(posedge clk, posedge asyn_reset) begin // output logic
-		if (asyn_reset) begin
-			i_next_out <= 0;
-			dst_tag_out <= 0;
-			src_tag_out <= 0;
-		end
-		case(state)
-			wait_src: begin
-				i_next_out <= next_out;
-				dst_tag_out <= dst_tag_out;
-				src_tag_out <= src_tag_out;
-			end
-			fetch_src: begin
-				i_next_out <= next_out;
-				dst_tag_out <= 0; // reset dst_tag
-				src_tag_out <= src_tag_in; // latch source tag
-			end
-			fetch_dst_wgt_inext: begin
-				i_next_out <= next_out;
-				dst_tag_out <= dst_tag_out;
-				src_tag_out <= src_tag_out;
-			end
-			add_wgt_inext: begin
-				i_next_out <= add1;
-				dst_tag_out <= dst_tag_out;
-				src_tag_out <= src_tag_out;
-			end
-			write_inext: begin
-				i_next_out <= next_out;
-				dst_tag_out <= dst_tag_next; // increment dst_tag
-				src_tag_out <= src_tag_out;
-			end
-		endcase
+	always @(posedge state[1]) begin // fetch_src
+		dst_tag_out <= 0;
+		src_tag_out <= src_tag_in;
 	end
 
-	assign busy = (state != wait_src);
-	assign req_deq = (state == fetch_src);
-	assign req_write_i_next = (state == write_inext);
+	always @(posedge state[2]) begin // fetch_dst_wgt_inext
+		i_next_reg <= i_next_in;
+		weight_reg <= weight_in;
+	end
+
+	always @(posedge state[3]) begin // perform addition
+		i_next_out <= add1;
+	end
+
+	// peep the negedge
+	// works in functional simulation, worried about timing
+	always @(negedge state[4]) begin // writeout, next dst
+		dst_tag_out <= dst_tag_next;
+	end
 
 endmodule

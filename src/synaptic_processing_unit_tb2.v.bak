@@ -215,8 +215,8 @@ in_clk = 1'b0;
 // cycle 1 
 in_asyn_reset = 1'b0;
 in_fifo_empty = 1'b0;
-in_weight_in = 17'b0_0000_1000_0000_0000;
-in_i_next_in = 17'b0_0000_0001_0000_0000;
+in_weight_in = 17'b0_0000_0000_0000_0000;
+in_i_next_in = 17'b0_0000_0000_0000_0000;
 in_src_tag_in = 1'b0;
 in_clk = 1'b1;
 #5
@@ -226,8 +226,8 @@ in_clk = 1'b0;
 // cycle 4
 in_asyn_reset = 1'b0;
 in_fifo_empty = 1'b0;
-in_weight_in = 17'b0_0000_0000_0000_0000;
-in_i_next_in = 17'b0_0000_0000_0000_0000;
+in_weight_in = 17'b0_0000_1000_0000_0000;
+in_i_next_in = 17'b0_0000_0001_0000_0000;
 in_src_tag_in = 1'b0;
 in_clk = 1'b1;
 #5
