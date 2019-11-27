@@ -1,5 +1,5 @@
 // Synaptic Processing Unit 2
-module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_in, src_tag_in, req_write_i_next, req_deq, busy, i_next_out, src_tag_out, dst_tag_out);
+module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_in, src_tag_in, state, req_write_i_next, req_deq, busy, i_next_out, src_tag_out, dst_tag_out);
 
 	parameter numneurons = 2;
 	parameter numwidth = 16;
@@ -12,12 +12,13 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 	output req_write_i_next, req_deq, busy;
 	output [numwidth:0] i_next_out;
 	output [tagbits-1:0] src_tag_out, dst_tag_out;
+	output [4:0] state;
 
 	wire clk, asyn_reset, fifo_empty;
 	wire [tagbits-1:0] src_tag_in;
 	wire [numwidth:0] weight_in, i_next_in;
 	
-	reg req_write_i_next, req_deq, busy;
+	wire req_write_i_next, req_deq, busy;
 	reg [tagbits-1:0] src_tag_out, dst_tag_out;
 	reg [numwidth:0] i_next_out;
 
@@ -34,16 +35,19 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 
 	wire [tagbits-1:0] dst, src;
 	wire [numwidth:0] next_out;
+	wire [tagbits-1:0] dst_tag_next;
 
-	assign dst = dst_tag_out;
-	assign src = src_tag_out;
+	// wire assignment
+	// assign dst = dst_tag_out;
+	// assign src = src_tag_out;
 	assign next_out = i_next_out;
-	assign next_state = my_fsm(state, fifo_empty, dst);
+	assign next_state = my_fsm(state, fifo_empty, dst_tag_next);
+	assign dst_tag_next = dst_tag_out + 1;
 
 	function [4:0] my_fsm;
 		input [4:0] state;
 		input fifo_empty;
-		input [tagbits-1:0] dst;
+		input [tagbits-1:0] dst_tag_next;
 		case(state)
 			wait_src: begin
 				if (!fifo_empty)
@@ -61,7 +65,7 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 				my_fsm = write_inext;
 			end
 			write_inext: begin
-				if (dst == 0)
+				if (dst_tag_next == 0)
 					my_fsm = wait_src;
 				else
 					my_fsm = fetch_dst_wgt_inext;
@@ -81,55 +85,41 @@ module synaptic_processing_unit2(clk, asyn_reset, fifo_empty, weight_in, i_next_
 
 	always @(posedge clk, posedge asyn_reset) begin // output logic
 		if (asyn_reset) begin
-			req_write_i_next <= 1'b0;
-			req_deq <= 1'b0;
-			busy <= 1'b0;
 			i_next_out <= 0;
 			dst_tag_out <= 0;
 			src_tag_out <= 0;
 		end
 		case(state)
 			wait_src: begin
-				req_write_i_next <= 1'b0;
-				req_deq <= 1'b0;
-				busy <= 1'b0;
 				i_next_out <= next_out;
-				dst_tag_out <= dst;
-				src_tag_out <= src;
+				dst_tag_out <= dst_tag_out;
+				src_tag_out <= src_tag_out;
 			end
 			fetch_src: begin
-				req_write_i_next <= 1'b0;
-				req_deq <= 1'b0;
-				busy <= 1'b1;
 				i_next_out <= next_out;
-				dst_tag_out <= dst;
-				src_tag_out <= src_tag_in;
+				dst_tag_out <= 0; // reset dst_tag
+				src_tag_out <= src_tag_in; // latch source tag
 			end
 			fetch_dst_wgt_inext: begin
-				req_write_i_next <= 1'b0;
-				req_deq <= 1'b0;
-				busy <= 1'b1;
 				i_next_out <= next_out;
-				dst_tag_out <= dst;
-				src_tag_out <= src;
+				dst_tag_out <= dst_tag_out;
+				src_tag_out <= src_tag_out;
 			end
 			add_wgt_inext: begin
-				req_write_i_next <= 1'b0;
-				req_deq <= 1'b0;
-				busy <= 1'b1;
 				i_next_out <= add1;
-				dst_tag_out <= dst;
-				src_tag_out <= src;
+				dst_tag_out <= dst_tag_out;
+				src_tag_out <= src_tag_out;
 			end
 			write_inext: begin
-				req_write_i_next <= 1'b1;
-				req_deq <= 1'b0;
-				busy <= 1'b1;
 				i_next_out <= next_out;
-				dst_tag_out <= dst + 1;
-				src_tag_out <= src;
+				dst_tag_out <= dst_tag_next; // increment dst_tag
+				src_tag_out <= src_tag_out;
 			end
 		endcase
 	end
+
+	assign busy = (state != wait_src);
+	assign req_deq = (state == fetch_src);
+	assign req_write_i_next = (state == write_inext);
 
 endmodule
