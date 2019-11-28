@@ -12,7 +12,7 @@ class Izhikevich:
 	"""
 
 	"""Constructor for spiking model with default values from paper"""
-	def __init__(self, a=0.02, b=0.2, c=-65.0, d=2.0):
+	def __init__(self, a=0.02, b=0.2, c=-48.0, d=2.0):
 		self.a = a
 		self.b = b
 		self.c = c
