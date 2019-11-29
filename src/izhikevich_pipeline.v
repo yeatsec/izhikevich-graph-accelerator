@@ -1,5 +1,5 @@
 //Izhikevich module
-module izhikevich (clk, a, b, c, d, v, u, i, v_prime, u_prime, fired);
+module izhikevich_pipeline (clk, a, b, c, d, v, u, i, v_prime, u_prime, fired);
 
 // Outputs
 output [16:0] v_prime, u_prime;
