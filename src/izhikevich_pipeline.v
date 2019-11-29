@@ -58,19 +58,19 @@ fixed_adder2 U5(mult4, u_wire1, 1'b1, inter); // b*v - u
 assign sub_wire1 = sub_reg1;
 // mult_reg4_1 <= mult4
 assign mult_wire4_1 = mult_reg4_1;
-// mult_reg2_2 <= mult_reg2_1
+// mult_reg2_2 <= mult_wire2_1
 assign mult_wire2_2 = mult_reg2_2;
-// a_reg2 <= a_reg1
+// a_reg2 <= a_wire1
 assign a_wire2 = a_reg2;
-// v_reg2 <= v_reg1
+// v_reg2 <= v_wire1
 assign v_wire2 = v_reg2;
-// u_reg2 <= u_reg1
+// u_reg2 <= u_wire1
 assign u_wire2 = u_reg2;
-// i_reg2 <= i_reg1
+// i_reg2 <= i_wire1
 assign i_wire2 = i_reg2;
-// c_reg2 <= c_reg1
+// c_reg2 <= c_wire1
 assign c_wire2 = c_reg2;
-// d_reg2 <= d_reg1
+// d_reg2 <= d_wire1
 assign d_wire2 = d_reg2;
 
 // Stage 3 for V
@@ -82,23 +82,23 @@ fixed_mult U9(a_reg2, sub_wire1, mult5); // a*(b*v - u)
 assign mult_wire5_1 = mult_reg5_1;
 // sub_reg2 <= add3
 assign sub_wire2 = sub_reg2;
-// i_reg3 <= i_reg2
+// i_reg3 <= i_wire2
 assign i_wire3 = i_reg3;
-// v_reg3 <= v_reg2
+// v_reg3 <= v_wire2
 assign v_wire3 = v_reg3;
-// u_reg3 <= u_reg2
+// u_reg3 <= u_wire2
 assign u_wire3 = u_reg3;
-// c_reg3 <= c_reg2
+// c_reg3 <= c_wire2
 assign c_wire3 = c_reg3;
-// d_reg3 <= d_reg2
+// d_reg3 <= d_wire2
 assign d_wire3 = d_reg3;
 
 // Stage 4 for V
 fixed_adder2 U10(sub_wire2, i_wire3, 1'b0, add4); // 0.039*v*v + 5*v + 140 - u + i
 fixed_adder2 U11(add4, v_wire3, 1'b0, new_v); // v + 0.039*v*v + 5*v + 140 - u + i
 fixed_adder2 U12(mult_wire5_1, u_wire3, 1'b0, new_u); // u + a*(b*v - u)
-fixed_adder2 U13(u_wire3, d_reg3, 1'b0, new_u2); // u + d
-// v_prime <= new_v or c_reg3
+fixed_adder2 U13(u_wire3, d_wire3, 1'b0, new_u2); // u + d
+// v_prime <= new_v or c_wire3
 // u_prime <= new_u or new_u2
 
 // Sequential logic
@@ -118,25 +118,25 @@ always @ (posedge clk) begin
 		// Stage 2
 		sub_reg1 <= inter;
 		mult_reg4_1 <= mult4;
-		mult_reg2_2 <= mult_reg2_1;
-		a_reg2 <= a_reg1;
-		v_reg2 <= v_reg1;
-		u_reg2 <= u_reg1;
-		i_reg2 <= i_reg1;
-		c_reg2 <= c_reg1;
-		d_reg2 <= d_reg1;
+		mult_reg2_2 <= mult_wire2_1;
+		a_reg2 <= a_wire1;
+		v_reg2 <= v_wire1;
+		u_reg2 <= u_wire1;
+		i_reg2 <= i_wire1;
+		c_reg2 <= c_wire1;
+		d_reg2 <= d_wire1;
 
 		// Stage 3
 		mult_reg5_1 <= mult5;
 		sub_reg2 <= add3;
-		i_reg3 <= i_reg2;
-		v_reg3 <= v_reg2;
-		u_reg3 <= u_reg2;
-		c_reg3 <= c_reg2;
-		d_reg3 <= d_reg2;
+		i_reg3 <= i_wire2;
+		v_reg3 <= v_wire2;
+		u_reg3 <= u_wire2;
+		c_reg3 <= c_wire2;
+		d_reg3 <= d_wire2;
 
 		// Stage 4
-		v_prime <= c_reg3;
+		v_prime <= c_wire3;
 		u_prime <= new_u2;
 		fired <= 1'b1;
 	end
@@ -155,22 +155,22 @@ always @ (posedge clk) begin
 		// Stage 2
 		sub_reg1 <= inter;
 		mult_reg4_1 <= mult4;
-		mult_reg2_2 <= mult_reg2_1;
-		a_reg2 <= a_reg1;
-		v_reg2 <= v_reg1;
-		u_reg2 <= u_reg1;
-		i_reg2 <= i_reg1;
-		c_reg2 <= c_reg1;
-		d_reg2 <= d_reg2;
+		mult_reg2_2 <= mult_wire2_1;
+		a_reg2 <= a_wire1;
+		v_reg2 <= v_wire1;
+		u_reg2 <= u_wire1;
+		i_reg2 <= i_wire1;
+		c_reg2 <= c_wire1;
+		d_reg2 <= d_wire2;
 
 		// Stage 3
 		mult_reg5_1 <= mult5;
 		sub_reg2 <= add3;
-		i_reg3 <= i_reg2;
-		v_reg3 <= v_reg2;
-		u_reg3 <= u_reg2;
-		c_reg3 <= c_reg2;
-		d_reg3 <= d_reg2;
+		i_reg3 <= i_wire2;
+		v_reg3 <= v_wire2;
+		u_reg3 <= u_wire2;
+		c_reg3 <= c_wire2;
+		d_reg3 <= d_wire2;
 
 		// Stage 4
 		v_prime <= new_v;
