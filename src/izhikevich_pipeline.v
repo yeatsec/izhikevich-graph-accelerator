@@ -53,7 +53,7 @@ assign d_wire1 = d_reg1;
 
 // Stage 2 for V
 fixed_mult U4(mult_wire1_1, v_wire1, mult4); // 0.039*v*v
-fixed_adder2 U5(mult4, u_wire1, 1'b1, inter); // b*v - u
+fixed_adder2 U5(mult_wire3_1, u_wire1, 1'b1, inter); // b*v - u
 // sub_reg1 <= inter
 assign sub_wire1 = sub_reg1;
 // mult_reg4_1 <= mult4

@@ -97,7 +97,7 @@ assign d_wire3 = d_reg3;
 fixed_adder2 U10(sub_wire2, i_wire3, 1'b0, add4); // 0.039*v*v + 5*v + 140 - u + i
 fixed_adder2 U11(add4, v_wire3, 1'b0, new_v); // v + 0.039*v*v + 5*v + 140 - u + i
 fixed_adder2 U12(mult_wire5_1, u_wire3, 1'b0, new_u); // u + a*(b*v - u)
-fixed_adder2 U13(u_wire3, d_reg3, 1'b0, new_u2); // u + d
+fixed_adder2 U13(u_wire3, d_wire3, 1'b0, new_u2); // u + d
 // v_prime <= new_v or c_wire3
 // u_prime <= new_u or new_u2
 
