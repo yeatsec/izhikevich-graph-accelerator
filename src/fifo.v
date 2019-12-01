@@ -25,7 +25,7 @@ module fifo(clk, enq, deq, asyn_reset, in_tag, out_tag, full, empty);
     reg [tagbits-1:0] ptr_next;
     reg isfull, isempty;
     reg isfull_next, isempty_next;
-    reg [numneurons:0] j;
+    reg [tagbits:0] j;
 
     // state update
     always @(posedge clk, posedge asyn_reset) begin

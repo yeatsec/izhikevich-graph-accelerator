@@ -7,10 +7,10 @@
 // Perhaps not the most scalable solution
 
 
-module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out);
+module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
     parameter numwidth = 16;
-    parameter tagbits = 7;
-    parameter numneurons = 128;
+    parameter tagbits = 1;
+    parameter numneurons = 2;
 
     parameter WAIT_TAG = 2'b00;
     parameter FETCH_WEIGHT = 2'b01;
@@ -22,6 +22,7 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
     input [tagbits-1:0] fired_tag, i_tag;
 
     output req_deq, busy;
+    output [1:0] state_out;
     output [numwidth:0] i_out;
 
     wire clk, asyn_reset, swap, fifo_empty;
@@ -29,12 +30,13 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
     reg [tagbits-1:0] fired_tag_reg, i_tag_reg;
     wire req_deq, busy;
     wire [numwidth:0] i_out;
+    wire [1:0] state_out;
 
     reg [numwidth:0] i_out_reg;
        
     reg [numwidth:0] i_next [0:numneurons-1];
     reg [numwidth:0] i [0:numneurons-1];
-    reg [12:0] j;
+    reg [tagbits:0] j, j2;
     reg [1:0] i_next_state; 
 
     
@@ -60,6 +62,7 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
     assign i_out = i_out_reg; // always put up the value in reg
     assign req_deq = (i_next_state == FETCH_WEIGHT);
     assign busy = (i_next_state != WAIT_TAG);
+    assign state_out = i_next_state;
 
     // efferent weight matrix [src_tag][dst_tag]. row-addressable read
     // weight-addressable (src & dst) write
@@ -68,10 +71,14 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
     always @(posedge clk, posedge asyn_reset)
     begin
         if (asyn_reset) begin
+            i_next_state <= 2'b00;
             for (j=0; j<numneurons; j=j+1)
                     i_next[j][numwidth:0] <= 17'b0_0000_0000_0000_0000;
             for (j=0; j<numneurons; j=j+1)
-                    i[j][numwidth:0] <= 17'b0_0000_0000_0000_0000;
+                    i[j][numwidth:0] <= 17'b0_0000_0000_0000_0000; 
+            for (j=0; j<numneurons; j=j+1)
+                for (j2=0; j2<numneurons; j2=j2+1)
+                    mem[j][j2][numwidth:0] <= 17'b0_0000_0001_0000_0000; // FOR TESTING
 	end
         else begin
             case (i_next_state)
@@ -94,8 +101,10 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
                 COMPUTE_I_NEXT: begin
                     if (fifo_empty)
                         i_next_state <= WAIT_TAG; // go home
-                    else
+                    else begin
                         i_next_state <= FETCH_WEIGHT; // more work to do
+                        fired_tag_reg <= fired_tag;
+                    end
                     for (j=0; j<numneurons; j=j+1) begin
                         i_next[j] <= i_next_result[j]; // latch the computed addition
                     end
@@ -103,7 +112,7 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
                 SWAP: begin
                     i_next_state <= WAIT_TAG;
                     for (j=0; j<numneurons; j=j+1)
-            	        i[j][numwidth:0] <= i_next[j][numwidth:0];
+            	       i[j][numwidth:0] <= i_next[j][numwidth:0];
                     for (j=0; j<numneurons; j=j+1) begin
                             i_next[j][numwidth-2:0] <= i_next[j][numwidth-1:1];
                             i_next[j][numwidth-1] <= 1'b0; // slip in a zero for right shift
