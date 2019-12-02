@@ -7,9 +7,9 @@
 
 
 
-module compute_in_memory(clk, reset, read_en, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
+module compute_in_memory(clk, reset, ld_en, ld_weight, eff_tag, aff_tag, read_en, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
     parameter numwidth = 16;
-    parameter tagbits = 2;
+    parameter tagbits = 5;
     parameter numneurons = 2**tagbits;
 
     parameter WAIT_TAG = 2'b00;
@@ -18,8 +18,9 @@ module compute_in_memory(clk, reset, read_en, swap, fifo_empty, busy, req_deq, f
     parameter SWAP = 2'b10;
 
 
-    input clk, reset, swap, fifo_empty, read_en;
-    input [tagbits-1:0] fired_tag, i_tag;
+    input clk, reset, swap, fifo_empty, read_en, ld_en;
+    input [tagbits-1:0] fired_tag, i_tag, eff_tag, aff_tag;
+	 input [numwidth:0] ld_weight;
 
     output req_deq, busy;
     output [1:0] state_out;
@@ -34,7 +35,7 @@ module compute_in_memory(clk, reset, read_en, swap, fifo_empty, busy, req_deq, f
        
     reg [numwidth:0] i_next [0:numneurons-1];
     reg [numwidth:0] i [0:numneurons-1];
-    reg [tagbits:0] j, j2;
+    reg [numwidth:0] j, j2;
     reg [1:0] i_next_state; 
 
     
@@ -77,9 +78,11 @@ module compute_in_memory(clk, reset, read_en, swap, fifo_empty, busy, req_deq, f
                     i[j][numwidth:0] <= 17'b0_0000_0000_0000_0000; 
             for (j=0; j<numneurons; j=j+1) begin
 					for (j2=0; j2<numneurons; j2=j2+1) begin
-						mem[j][j2] <= 17'b0_0000_0001_0000_0000; // FOR TESTING
+						mem[j][j2] <= 17'b0_0000_0000_0000_0000; // FOR TESTING
 					end
 				end
+			end else if (ld_en) begin
+				mem[eff_tag][aff_tag] <= ld_weight;
 			end else begin
             case (i_next_state)
                 WAIT_TAG: begin
