@@ -3,13 +3,13 @@
 // Final Project
 // Compute in-memory
 
-// Testing out the idea of throwing ALU's at the NxN connectivity copmlexity.
-// Perhaps not the most scalable solution
+// Testing out the idea of throwing ALU's at the NxN connectivity complexity.
 
 
-module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
+
+module compute_in_memory(clk, reset, read_en, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
     parameter numwidth = 16;
-    parameter tagbits = 6;
+    parameter tagbits = 2;
     parameter numneurons = 2**tagbits;
 
     parameter WAIT_TAG = 2'b00;
@@ -18,15 +18,13 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
     parameter SWAP = 2'b10;
 
 
-    input clk, asyn_reset, swap, fifo_empty;
+    input clk, reset, swap, fifo_empty, read_en;
     input [tagbits-1:0] fired_tag, i_tag;
 
     output req_deq, busy;
     output [1:0] state_out;
     output [numwidth:0] i_out;
 
-    wire clk, asyn_reset, swap, fifo_empty;
-    wire [tagbits-1:0] fired_tag, i_tag;
     reg [tagbits-1:0] fired_tag_reg, i_tag_reg;
     wire req_deq, busy;
     wire [numwidth:0] i_out;
@@ -63,24 +61,26 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
     assign req_deq = (i_next_state == FETCH_WEIGHT);
     assign busy = (i_next_state != WAIT_TAG);
     assign state_out = i_next_state;
+		
 
     // efferent weight matrix [src_tag][dst_tag]. row-addressable read
     // weight-addressable (src & dst) write
     reg [numwidth:0] mem [0:numneurons-1][0:numneurons-1];
 
-    always @(posedge clk, posedge asyn_reset)
+    always @(posedge clk)
     begin
-        if (asyn_reset) begin
+        if (reset) begin
             i_next_state <= 2'b00;
             for (j=0; j<numneurons; j=j+1)
                     i_next[j][numwidth:0] <= 17'b0_0000_0000_0000_0000;
             for (j=0; j<numneurons; j=j+1)
                     i[j][numwidth:0] <= 17'b0_0000_0000_0000_0000; 
-            for (j=0; j<numneurons; j=j+1)
-                for (j2=0; j2<numneurons; j2=j2+1)
-                    mem[j][j2][numwidth:0] <= 17'b0_0000_0001_0000_0000; // FOR TESTING
-	end
-        else begin
+            for (j=0; j<numneurons; j=j+1) begin
+					for (j2=0; j2<numneurons; j2=j2+1) begin
+						mem[j][j2] <= 17'b0_0000_0001_0000_0000; // FOR TESTING
+					end
+				end
+			end else begin
             case (i_next_state)
                 WAIT_TAG: begin
                     if (!fifo_empty) begin
@@ -124,6 +124,13 @@ module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired
 
     // process to assign i_out_reg
     always @(posedge clk) begin
-        i_out_reg <= i[i_tag];
-    end   
+		if (reset) begin
+			i_tag_reg <= 0;
+			i_out_reg <= i[0];
+		end else begin
+			if (read_en)
+				i_tag_reg <= i_tag; // added for testing
+			i_out_reg <= i[i_tag_reg];
+		end   
+	 end
 endmodule
