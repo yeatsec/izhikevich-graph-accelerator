@@ -18,7 +18,7 @@ reg [16:0] v_prime, u_prime;
 reg fired;
 
 // Internal signals
-wire [16:0] new_v, new_u, mult1, mult2, mult3, mult4, mult5, inter, add1, add2, add3, add4;
+wire [16:0] new_v, new_u, new_u2, mult1, mult2, mult3, mult4, mult5, inter, add1, add2, add3, add4;
 
 // Combinational logic
 fixed_mult U1(17'b0_0000_0000_0000_1010,v,mult1);
@@ -37,12 +37,13 @@ fixed_adder2 U10(mult4, u, 1'b1, inter);
 //assign inter = mult4 - u;
 fixed_mult U5(a,inter,mult5);
 fixed_adder2 U12(mult5, u, 1'b0, new_u);
+fixed_adder2 U13(u, d, 1'b0, new_u2);
 
 // Sequential logic
 always @ (posedge clk) begin
 	if ((new_v[15:0] >= 16'b0001_1110_0000_0000) && (new_v[16] == 1'b0)) begin
 		v_prime <= c;
-		u_prime <= u + d;
+		u_prime <= new_u2;
 		fired <= 1'b1;
 	end
 	else begin
@@ -50,6 +51,8 @@ always @ (posedge clk) begin
 		u_prime <= new_u;
 		fired <= 1'b0;
 	end
+	if ((new_v[15:0] >= 16'b0011_0010_0000_0000) && (new_v[16] == 1'b1))
+		v_prime <= 17'b1_0011_0010_0000_0000;
 end
 
 endmodule
