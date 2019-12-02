@@ -7,8 +7,8 @@
 
 module fifo(clk, enq, deq, asyn_reset, in_tag, out_tag, full, empty);
 
-    parameter numneurons = 2;
-    parameter tagbits = 1;
+    parameter tagbits = 6;
+	 parameter numneurons = 2**tagbits;
 
     input clk, enq, deq, asyn_reset;
     input [tagbits-1:0] in_tag;

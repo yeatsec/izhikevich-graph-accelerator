@@ -9,8 +9,8 @@
 
 module compute_in_memory(clk, asyn_reset, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
     parameter numwidth = 16;
-    parameter tagbits = 1;
-    parameter numneurons = 2;
+    parameter tagbits = 6;
+    parameter numneurons = 2**tagbits;
 
     parameter WAIT_TAG = 2'b00;
     parameter FETCH_WEIGHT = 2'b01;
