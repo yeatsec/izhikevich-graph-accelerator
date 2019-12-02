@@ -32,9 +32,9 @@ assign v_in = v_out;
 assign u_in = u_out;
 
 always @(posedge clk) begin
-	#1 fired_out <= fire_inter;
-	#1 v_out <= v_inter;
-	#1 u_out <= u_inter;
+	fired_out <= fire_inter;
+	v_out <= v_inter;
+	u_out <= u_inter;
 end
 
 endmodule

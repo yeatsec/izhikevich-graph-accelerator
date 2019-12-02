@@ -176,6 +176,8 @@ always @ (posedge clk) begin
 		v_prime <= new_v;
 		u_prime <= new_u;
 		fired <= 1'b0;
+		if ((new_v[15:0] >= 16'b0011_0010_0000_0000) && (new_v[16] == 1'b1))
+			v_prime <= 17'b1_0011_0010_0000_0000;
 	end
 end
 
