@@ -9,7 +9,7 @@
 
 module compute_in_memory(clk, reset, ld_en, ld_weight, eff_tag, aff_tag, read_en, swap, fifo_empty, busy, req_deq, fired_tag, i_tag, i_out, state_out);
     parameter numwidth = 16;
-    parameter tagbits = 5;
+    parameter tagbits = 4;
     parameter numneurons = 2**tagbits;
 
     parameter WAIT_TAG = 2'b00;
@@ -20,7 +20,7 @@ module compute_in_memory(clk, reset, ld_en, ld_weight, eff_tag, aff_tag, read_en
 
     input clk, reset, swap, fifo_empty, read_en, ld_en;
     input [tagbits-1:0] fired_tag, i_tag, eff_tag, aff_tag;
-	 input [numwidth:0] ld_weight;
+	 input [7:0] ld_weight;
 
     output req_deq, busy;
     output [1:0] state_out;
@@ -39,7 +39,7 @@ module compute_in_memory(clk, reset, ld_en, ld_weight, eff_tag, aff_tag, read_en
     reg [1:0] i_next_state; 
 
     
-    reg [numwidth:0] eff_syn_reg [0:numneurons-1];
+    reg [7:0] eff_syn_reg [0:numneurons-1];
     
     wire [numwidth:0] i_next_result [0:numneurons-1];
 
@@ -66,7 +66,7 @@ module compute_in_memory(clk, reset, ld_en, ld_weight, eff_tag, aff_tag, read_en
 
     // efferent weight matrix [src_tag][dst_tag]. row-addressable read
     // weight-addressable (src & dst) write
-    reg [numwidth:0] mem [0:numneurons-1][0:numneurons-1];
+    reg [7:0] mem [0:numneurons-1][0:numneurons-1];
 
     always @(posedge clk)
     begin

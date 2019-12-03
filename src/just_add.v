@@ -6,19 +6,21 @@
 module just_add (a, b, sum);
 	
 	parameter numwidth = 16;
-	input [numwidth:0] a, b;
+	input [numwidth:0] a;
+	input [7:0] b;
 	output [numwidth:0] sum; 
 
-	wire [numwidth:0] a, b;
+	wire [numwidth:0] a;
+	wire [7:0] b;
 	wire [numwidth:0] sum;
 
 	assign sum = 				
-						(((a[numwidth] == b[numwidth])) ? 
-							{a[numwidth], a[numwidth-1:0] + b[numwidth-1:0]} : 
-							(((a[numwidth-1:0] > b[numwidth-1:0]) && (a[numwidth] != b[numwidth])) ? 
-								{a[numwidth], a[numwidth-1:0] + ~b[numwidth-1:0] + 1'b1} : 
-								(((b[numwidth-1:0] > a[numwidth-1:0]) && (a[numwidth] != b[numwidth])) ? 
-									{b[numwidth], ~a[numwidth-1:0] + b[numwidth-1:0] + 1'b1} : 
+						(((a[numwidth] == b[7])) ? 
+							{a[numwidth], a[numwidth-1:0] + b[6:0]} : 
+							(((a[numwidth-1:0] > b[6:0]) && (a[numwidth] != b[7])) ? 
+								{a[numwidth], a[numwidth-1:0] + ~b[6:0] + 1'b1} : 
+								(((b[6:0] > a[numwidth-1:0]) && (a[numwidth] != b[7])) ? 
+									{b[7], ~a[numwidth-1:0] + b[6:0] + 1'b1} : 
 									0)));
 
 endmodule
